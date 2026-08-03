@@ -44,8 +44,7 @@ uvicorn main:app --reload
 ```
 
 ### DB Browser Screenshot
-![DB Browser Screenshot](tasks_db_screenshot.png)
-*(Note: Be sure to add a screenshot named `tasks_db_screenshot.png` showing the database rows in DB Browser for SQLite)*
+![DB Browser Screenshot](assets/tasks_db_screenshot.png)
 
 ### Example SQL Query (from Stage 4)
 ```sql
