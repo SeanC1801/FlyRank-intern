@@ -3,7 +3,7 @@
 This repository contains the backend API for FlyRank, alongside the initial basic FastAPI template (`be-01-first-api`).
 
 ## Progress & Purpose
-- Created the FlyRank backend inside `connect-database/main.py`.
+- Created the FlyRank backend inside `be-02-connect-database/main.py`.
 - Integrated an SQLite database (`tasks.db`) to store tasks persistently.
 - Implemented CRUD (Create, Read, Update, Delete) operations for the tasks.
 - Configured Uvicorn to allow the application to run on host `0.0.0.0` so it can be accessed across the local network.
@@ -34,12 +34,12 @@ The server runs at http://127.0.0.1:8000
 SQLite was chosen because it requires zero setup, runs entirely from a single file, and allows data to survive server restarts. It's incredibly fast and great for straightforward backend applications without needing a standalone database server.
 
 ### Where is the database file?
-The database file lives at `connect-database/tasks.db`. It is created automatically the first time the application runs if it doesn't already exist. We usually `.gitignore` this file so each clone of the repository gets a fresh database.
+The database file lives at `be-02-connect-database/tasks.db`. It is created automatically the first time the application runs if it doesn't already exist. We usually `.gitignore` this file so each clone of the repository gets a fresh database.
 
 ### Running the Project
 To start the project, use the following commands:
 ```bash
-cd connect-database
+cd be-02-connect-database
 uvicorn main:app --reload
 ```
 
