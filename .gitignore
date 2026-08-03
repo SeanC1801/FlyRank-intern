@@ -7,3 +7,4 @@ env/
 
 # OS
 .DS_Store
+*.db
