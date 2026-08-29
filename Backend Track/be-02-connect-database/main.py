@@ -71,8 +71,17 @@ def read_root():
 # --- STAGE 1: GET ALL TASKS ---
 @app.get("/tasks")
 def get_tasks():
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
+    rows = db.get_all_tasks()
+
+    formatted_tasks = []
+    for row in rows:
+        task_id, title, done = row
+        formatted_tasks.append({
+            "id": task_id,
+            "title": title,
+            "done": bool(done)
+        })
+    return formatted_tasks
 
     # Run the SQL command to get all tasks
     cursor.execute("SELECT id, title, done FROM tasks")
@@ -94,8 +103,17 @@ def get_tasks():
 # --- STAGE 1: GET SINGLE TASK BY ID ---
 @app.get("/tasks/{task_id}")
 def get_task(task_id: int):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
+    row = db.get_task_by_id(task_id)
+
+    if row is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task_id, title, done = row
+    return {
+        "id": task_id,
+        "title": title,
+        "done": bool(done)
+    }
     
     # Safely query using a parameterized placeholder
     cursor.execute("SELECT id, title, done FROM tasks WHERE id = ?", (task_id,))

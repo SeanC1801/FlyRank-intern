@@ -41,3 +41,20 @@ def init_db():
     conn.commit()
     conn.close()
 
+# Query Functions
+def get_all_tasks():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, title, done FROM tasks")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
+def get_task_by_id(task_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, title, done FROM tasks WHERE id = %s", (task_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row
+
