@@ -1,5 +1,5 @@
 import sqlite3
-# pyrefly: ignore [missing-import]
+import db
 from fastapi import FastAPI, HTTPException, Response, status
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
@@ -58,6 +58,7 @@ def init_db():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    db.init_db()
     yield
 
 # Initialize FastAPI with lifespan handler
