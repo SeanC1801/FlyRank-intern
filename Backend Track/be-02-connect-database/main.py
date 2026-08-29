@@ -4,6 +4,8 @@ from fastapi import FastAPI, HTTPException, Response, status
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
+import db as postgres_db
+
 class TaskCreate(BaseModel):
     title: str
 
@@ -58,6 +60,7 @@ def init_db():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    postgres_db.init_db()
     yield
 
 # Initialize FastAPI with lifespan handler
