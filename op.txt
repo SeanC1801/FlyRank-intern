@@ -1,0 +1,165 @@
+using System;
+
+internal class Zodiac
+{
+    public static void Main(string[] args)
+    {
+        Console.Write("Enter your name: ");
+        string name = Console.ReadLine();
+
+        Console.Write("Enter your birth month (1-12): ");
+        int month = int.Parse(Console.ReadLine());
+
+        Console.Write("Enter your birth day: ");
+        int day = int.Parse(Console.ReadLine());
+
+        Console.Write("Enter your birth year: ");
+        int year = int.Parse(Console.ReadLine());
+
+        DateTime birthday = new DateTime(year, month, day);
+
+        string zodiac = "";
+        string love = "";
+        string career = "";
+        string health = "";
+        string wealth = "";
+        string luckyColor = "";
+        int luckyNumber = 0;
+
+        // Complete 12 Zodiac Signs logic
+        if ((month == 3 && day >= 21) || (month == 4 && day <= 19))
+        {
+            zodiac = "Aries";
+            love = "Passion is high; honest communication will strengthen your bonds.";
+            career = "Take bold initiatives; leadership opportunities are emerging.";
+            health = "High energy levels, but remember to stay hydrated.";
+            wealth = "Organize your budget and avoid impulsive purchases.";
+            luckyColor = "Red";
+            luckyNumber = 9;
+        }
+        else if ((month == 4 && day >= 20) || (month == 5 && day <= 20))
+        {
+            zodiac = "Taurus";
+            love = "Stability and comfort define your relationships.";
+            career = "Consistency and patience on long-term projects will yield rewards.";
+            health = "Focus on neck and throat care; stretch regularly.";
+            wealth = "Favorable conditions for long-term savings.";
+            luckyColor = "Emerald Green";
+            luckyNumber = 6;
+        }
+        else if ((month == 5 && day >= 21) || (month == 6 && day <= 20))
+        {
+            zodiac = "Gemini";
+            love = "Witty conversations and social gatherings spark fresh romance.";
+            career = "Collaboration and brainstorming will unlock breakthrough ideas.";
+            health = "Prioritize restful sleep to balance an active, fast-moving mind.";
+            wealth = "Diversified income streams are on the horizon; review agreements carefully.";
+            luckyColor = "Yellow";
+            luckyNumber = 5;
+        }
+        else if ((month == 6 && day >= 21) || (month == 7 && day <= 22))
+        {
+            zodiac = "Cancer";
+            love = "Emotional depth brings you closer to family and loved ones.";
+            career = "Trust your intuition when navigating team dynamics and sensitive tasks.";
+            health = "Maintain digestive wellness with balanced, home-cooked meals.";
+            wealth = "Security is your focus; avoid lending money without clear terms.";
+            luckyColor = "Silver";
+            luckyNumber = 2;
+        }
+        else if ((month == 7 && day >= 23) || (month == 8 && day <= 22))
+        {
+            zodiac = "Leo";
+            love = "Your warmth attracts admiration and romantic excitement.";
+            career = "Creative projects shine brightly; share your achievements.";
+            health = "Support cardiovascular vitality with regular exercise.";
+            wealth = "Rewards for past hard work arrive; allocate funds wisely.";
+            luckyColor = "Gold";
+            luckyNumber = 1;
+        }
+        else if ((month == 8 && day >= 23) || (month == 9 && day <= 22))
+        {
+            zodiac = "Virgo";
+            love = "Acts of service and thoughtfulness speak louder than grand gestures.";
+            career = "Your attention to detail prevents costly mistakes; colleagues rely on you.";
+            health = "Incorporate mindful breathing to reduce stress and perfectionism.";
+            wealth = "Smart analytical planning keeps your financial foundation robust.";
+            luckyColor = "Navy Blue";
+            luckyNumber = 5;
+        }
+        else if ((month == 9 && day >= 23) || (month == 10 && day <= 22))
+        {
+            zodiac = "Libra";
+            love = "Harmony and balance are restored in personal partnerships.";
+            career = "Mediation and diplomacy make you indispensable during team negotiations.";
+            health = "Maintain balance in your diet and prioritize proper hydration.";
+            wealth = "Avoid splurging on aesthetics; review your monthly expenses.";
+            luckyColor = "Pastel Pink";
+            luckyNumber = 7;
+        }
+        else if ((month == 10 && day >= 23) || (month == 11 && day <= 21))
+        {
+            zodiac = "Scorpio";
+            love = "Deep emotional transformations lead to powerful connections.";
+            career = "Strategic research and focused determination yield decisive victories.";
+            health = "Release pent-up tension through workouts or mindful meditation.";
+            wealth = "Shared resources and joint ventures bring profitable returns.";
+            luckyColor = "Maroon";
+            luckyNumber = 8;
+        }
+        else if ((month == 11 && day >= 22) || (month == 12 && day <= 21))
+        {
+            zodiac = "Sagittarius";
+            love = "Shared adventures and spontaneous trips reignite romantic sparks.";
+            career = "Broaden your horizons through learning new skills or remote ventures.";
+            health = "Outdoor activities and fresh air will significantly boost your mood.";
+            wealth = "Optimism is high, but ensure you review contract details thoroughly.";
+            luckyColor = "Purple";
+            luckyNumber = 3;
+        }
+        else if ((month == 12 && day >= 22) || (month == 1 && day <= 19))
+        {
+            zodiac = "Capricorn";
+            love = "Loyalty and long-term commitments are mutually appreciated.";
+            career = "Disciplined execution brings long-awaited milestone achievements.";
+            health = "Support bone and joint strength with resistance training.";
+            wealth = "Steady financial growth reflects your practical approach.";
+            luckyColor = "Charcoal Grey";
+            luckyNumber = 4;
+        }
+        else if ((month == 1 && day >= 20) || (month == 2 && day <= 18))
+        {
+            zodiac = "Aquarius";
+            love = "Friendship serves as the foundation for true romantic fulfillment.";
+            career = "Innovative approaches and unconventional ideas gain strong traction.";
+            health = "Focus on leg circulation with walking and regular movement breaks.";
+            wealth = "Unexpected opportunities arise through tech and community networks.";
+            luckyColor = "Electric Blue";
+            luckyNumber = 11;
+        }
+        else if ((month == 2 && day >= 19) || (month == 3 && day <= 20))
+        {
+            zodiac = "Pisces";
+            love = "Deep empathy and romantic daydreaming enhance emotional closeness.";
+            career = "Artistic and intuitive projects thrive when you trust your instincts.";
+            health = "Prioritize foot care and unwind with soothing relaxation routines.";
+            wealth = "Be mindful of emotional spending; set strict spending boundaries.";
+            luckyColor = "Sea Green";
+            luckyNumber = 7;
+        }
+
+        // Output matching the required sample format
+        Console.WriteLine("\nName: " + name);
+        Console.WriteLine("Your Birthday: " + birthday.ToString("MMMM dd, yyyy"));
+        Console.WriteLine("Zodiac Sign: " + zodiac);
+        Console.WriteLine("Love: " + love);
+        Console.WriteLine("Career: " + career);
+        Console.WriteLine("Health: " + health);
+        Console.WriteLine("Wealth: " + wealth);
+        Console.WriteLine("Lucky Color: " + luckyColor);
+        Console.WriteLine("Lucky Number: " + luckyNumber);
+        Console.WriteLine("Readings Based From: https://zodiacsignreadingexample.com");
+
+        Console.ReadKey();
+    }
+}
