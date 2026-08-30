@@ -236,6 +236,15 @@ def delete_task(task_id: int):
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+# --- Health Check ---
+@app.get("/health")
+def health_check():
+    try:
+        db.check_connection()
+        return {"status": "ok", "db": "ok"}
+    except Exception:
+        raise HTTPException(status_code=503, detail={"status": "error", "db": "unreachable"})
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

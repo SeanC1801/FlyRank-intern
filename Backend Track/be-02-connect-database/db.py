@@ -100,3 +100,10 @@ def delete_task(task_id):
     conn.close()
     return True
     
+# Health Check for Connection
+def check_connection():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1")
+    cursor.fetchone()
+    conn.close()
