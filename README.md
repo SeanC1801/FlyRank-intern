@@ -12,6 +12,20 @@ Each assignment builds on the same task CRUD API, swapping out one piece of real
 
 The lesson threading through all three: the API's behavior never changes — same endpoints, same status codes, same JSON — only what's running underneath it does. That's what makes storage "just an implementation detail," and it's the same principle a later assignment (A15 — Layered architecture) formalizes properly.
 
+### Where to find each assignment
+
+There is no separate `be-03/` folder — A3 is not a new project, it's an upgrade made *inside* `be-02-connect-database/`, continuing the same repo the assignment instructions require. Use this table, not folder names alone, to navigate:
+
+| Label | Assignment | Folder | What's there |
+|---|---|---|---|
+| BE-01 | A1 — First API | `be-01-first-api/` | The original in-memory API |
+| BE-02 | A2 — Connect to a database | `be-02-connect-database/` | Same API, upgraded to SQLite (superseded — see below) |
+| **BE-03** | **A3 — Containerize your stack** | **`be-02-connect-database/`** (same folder, current state) | The **current, final version**: same API, now running on Postgres + Docker Compose |
+| — | A3 Stage 6 (AI rematch) | `ai-version/` | AI-generated Postgres+Docker stack, for comparison only — never the submission |
+| — | A2 Stage 6 (AI rematch, historical) | `be-02-connect-database/ai-version-sqlite-a2/` | An earlier, separate AI comparison exercise from back when this project still used SQLite |
+
+**In short:** `be-02-connect-database/` currently *is* the BE-03 submission — it just kept its original folder name as it evolved through A2 and A3, per the assignment's own instruction to continue in the same repo/folder rather than start a new one.
+
 ---
 
 ## [BE-01] First API (`be-01-first-api/`)
@@ -35,7 +49,7 @@ The server runs at http://127.0.0.1:8000
 
 ---
 
-## [BE-02 / A3] Containerize your stack (`be-02-connect-database/`)
+## [BE-02 & BE-03] Containerize your stack (`be-02-connect-database/`)
 
 This folder has evolved across three assignments: it started as A1's in-memory API, gained SQLite persistence in A2, and now runs the full CRUD API against a real **PostgreSQL** server — with the entire stack (API + database) started by a single command via **Docker Compose**.
 
@@ -60,12 +74,12 @@ Not in a file on disk anymore (that was A2's SQLite approach) — it's inside th
 **For reference — the old SQLite database (A2), before the Postgres migration:**
 ![SQLite database screenshot from A2](assets/tasks_db_screenshot.png)
 
-### Stage 6: AI vs Me (The AI Rematch)
+### [A2 — Historical] Stage 6: AI vs Me (SQLite era)
+
+**This is a separate, earlier exercise from when this project still used SQLite (A2) — not the current Postgres/Docker AI rematch.** For the current A3 "AI vs me" comparison (Postgres, Docker, Docker Compose), see [`be-02-connect-database/README.md`](be-02-connect-database/README.md#stage-6-ai-vs-me-the-ai-rematch) — that's the one relevant to this assignment. This section is kept only as a historical record; the AI-generated code from this exercise lives in [`be-02-connect-database/ai-version-sqlite-a2/`](be-02-connect-database/ai-version-sqlite-a2/).
 
 **Prompt given to AI:**
 > Write a FastAPI CRUD API using sqlite3. Create table `tasks` (id integer primary key, title text, done integer) if missing. Seed 3 tasks only when empty. 5 endpoints (GET /tasks, GET /tasks/{id}, POST /tasks, PUT /tasks/{id}, DELETE /tasks/{id}) identical to in-memory, 400/404 rules, and parameterized queries.
-
-*(This comparison was run during the A2/SQLite stage — kept here as a record of that exercise.)*
 
 #### Differences (AI vs Me)
 
