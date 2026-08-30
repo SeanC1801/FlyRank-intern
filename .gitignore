@@ -9,5 +9,8 @@ env/
 .DS_Store
 *.db
 
+# R (unrelated to this project, ignore just in case)
+.Rhistory
+
 # IDE
 .idea/
