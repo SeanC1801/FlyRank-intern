@@ -1,6 +1,6 @@
 # FlyRank Internship — Backend Track
 
-This repository holds my assignments for the FlyRank Internship, **Backend Track**, working toward the **Backend AI Engineer** role — the on-ramp track before transitioning into Machine Learning work.
+This repository holds my assignments for the FlyRank Internship, **Backend Track**, working toward the **Backend AI Engineer** role, the on-ramp track before transitioning into Machine Learning work.
 
 Each assignment builds on the same task CRUD API, swapping out one piece of real backend infrastructure at a time:
 
