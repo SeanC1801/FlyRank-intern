@@ -1,10 +1,25 @@
 from fastapi import FastAPI, HTTPException, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 import db
 
 app = FastAPI()
 db.init_db()
+
+
+@app.get("/health")
+def health_check():
+    try:
+        with db.get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+        return {"status": "ok", "db": "ok"}
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "error", "db": "unreachable"},
+        )
 
 
 class TaskCreate(BaseModel):
