@@ -34,3 +34,23 @@ def init_db():
                     "('Walk the dog', TRUE)"
                 )
         conn.commit()
+
+
+def get_all_tasks():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, title, done FROM tasks ORDER BY id")
+            rows = cur.fetchall()
+    return [{"id": r[0], "title": r[1], "done": r[2]} for r in rows]
+
+
+def get_task_by_id(task_id):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT id, title, done FROM tasks WHERE id = %s", (task_id,)
+            )
+            row = cur.fetchone()
+    if row is None:
+        return None
+    return {"id": row[0], "title": row[1], "done": row[2]}
