@@ -8,3 +8,6 @@ env/
 # OS
 .DS_Store
 *.db
+
+# IDE
+.idea/
