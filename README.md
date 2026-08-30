@@ -55,7 +55,10 @@ docker compose up
 The API is available at http://localhost:8000 — no manual Postgres installation or setup required.
 
 ### Where the data actually lives
-Not in a file on disk anymore (that was A2's SQLite approach) — it's inside the `taskdata` Docker volume, managed by Postgres running in the `db` container. See `be-02-connect-database/README.md` for the full endpoint table, environment variables, and a screenshot of the live data.
+Not in a file on disk anymore (that was A2's SQLite approach) — it's inside the `taskdata` Docker volume, managed by Postgres running in the `db` container. See `be-02-connect-database/README.md` for the full endpoint table, environment variables, and a screenshot of the current Postgres data.
+
+**For reference — the old SQLite database (A2), before the Postgres migration:**
+![SQLite database screenshot from A2](assets/tasks_db_screenshot.png)
 
 ### Stage 6: AI vs Me (The AI Rematch)
 
