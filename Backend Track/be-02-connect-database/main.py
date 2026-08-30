@@ -1,6 +1,7 @@
 import sqlite3
 import db
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import FastAPI, HTTPException, Response, status, Request
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
@@ -33,10 +34,10 @@ def init_db():
     # 3. Check if the table is empty
     cursor.execute("SELECT COUNT(*) FROM tasks")
     result = cursor.fetchone()
-    
+
     # Bracket-free unpacking: extracts the integer from the tuple safely!
     row_count, = result if result else (0,)
-    
+
     # 4. Seed three example tasks ONLY if the table is empty
     if row_count == 0:
         starting_tasks = (
@@ -45,7 +46,7 @@ def init_db():
             ("Practice SQL queries", 0)
         )
         cursor.executemany(
-            "INSERT INTO tasks (title, done) VALUES (?, ?)", 
+            "INSERT INTO tasks (title, done) VALUES (?, ?)",
             starting_tasks
         )
         print("--- Successfully seeded 3 example tasks into the database! ---")
@@ -63,6 +64,13 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI with lifespan handler
 app = FastAPI(lifespan=lifespan)
+
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail}
+    )
 
 @app.get("/")
 def read_root():
@@ -83,23 +91,6 @@ def get_tasks():
         })
     return formatted_tasks
 
-    # Run the SQL command to get all tasks
-    cursor.execute("SELECT id, title, done FROM tasks")
-    rows = cursor.fetchall()
-   
-    conn.close()
-
-    # Bracket-free mapping using tuple unpacking
-    formatted_tasks = []
-    for row in rows:
-        task_id, title, done = row  
-        formatted_tasks.append({
-            "id": task_id,
-            "title": title,
-            "done": bool(done)
-        })
-    return formatted_tasks
-
 # --- STAGE 1: GET SINGLE TASK BY ID ---
 @app.get("/tasks/{task_id}")
 def get_task(task_id: int):
@@ -108,24 +99,6 @@ def get_task(task_id: int):
     if row is None:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    task_id, title, done = row
-    return {
-        "id": task_id,
-        "title": title,
-        "done": bool(done)
-    }
-    
-    # Safely query using a parameterized placeholder
-    cursor.execute("SELECT id, title, done FROM tasks WHERE id = ?", (task_id,))
-    row = cursor.fetchone()
-    
-    conn.close()
-    
-    # If the database returns no row, raise a 404 error
-    if row is None:
-        raise HTTPException(status_code=404, detail="Task not found")
-    
-    # Bracket-free unpacking for a single row
     task_id, title, done = row
     return {
         "id": task_id,
@@ -151,30 +124,6 @@ def create_task(task: TaskCreate):
         "done": done
     }
 
-    # 2. Insert the task into SQLite
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-
-    # We use ? placeholders to keep our database secure!
-    cursor.execute(
-        "INSERT INTO tasks (title, done) values (?, ?)",
-        (cleaned_title, 0) # New tasks start as uncompleted (0)
-    )
-
-    # 3. Retrieve the unique ID SQLite generated for this row
-    new_id = cursor.lastrowid
-    
-    # Commit changes to disk and close connection
-    conn.commit()
-    conn.close()
-
-    #4. Return the new task back to the client
-    return {
-        "id": new_id,
-        "title": cleaned_title,
-        "done": False
-    }
-
 # --- STAGE 3: UPDATE A TASK ---
 @app.put("/tasks/{task_id}")
 def update_task(task_id: int, task: TaskUpdate):
@@ -182,7 +131,7 @@ def update_task(task_id: int, task: TaskUpdate):
     cleaned_title = task.title.strip()
     if not cleaned_title:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Title cannot be empty"
         )
 
@@ -196,34 +145,6 @@ def update_task(task_id: int, task: TaskUpdate):
         "id": updated_id,
         "title": title,
         "done": done
-    }
-    
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-
-    # 2. Check if the task exists first
-    cursor.execute("SELECT id FROM tasks WHERE id = ?", (task_id,))
-    if cursor.fetchone() is None:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Task not found")
-
-    # 3. Convert Python boolean (True/False) to SQLite integer (1/0)
-    db_done = 1 if task.done else 0
-
-    # 4. Update the task in the database
-    cursor.execute(
-        "UPDATE tasks SET title = ?, done = ? WHERE id = ?",
-        (cleaned_title, db_done, task_id)
-    )
-
-    conn.commit()
-    conn.close()
-
-    # 5. Return the updated task object
-    return {
-        "id": task_id,
-        "title": cleaned_title,
-        "done": task.done
     }
 
 # --- STAGE 3: DELETE A TASK ---
