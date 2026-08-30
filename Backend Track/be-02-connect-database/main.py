@@ -136,13 +136,20 @@ def get_task(task_id: int):
 # --- STAGE 2 ---
 @app.post("/tasks", status_code=status.HTTP_201_CREATED)
 def create_task(task: TaskCreate):
-    # 1. Validate the input (remove trailing/leading spaces first)
     cleaned_title = task.title.strip()
     if not cleaned_title:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Task title cannot be empty"
         )
+
+    row = db.create_task(cleaned_title, False)
+    task_id, title, done = row
+    return {
+        "id": task_id,
+        "title": title,
+        "done": done
+    }
 
     # 2. Insert the task into SQLite
     conn = sqlite3.connect(DB_FILE)
@@ -178,6 +185,18 @@ def update_task(task_id: int, task: TaskUpdate):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="Title cannot be empty"
         )
+
+    result = db.update_task(task_id, cleaned_title, task.done)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    updated_id, title, done = result
+    return {
+        "id": updated_id,
+        "title": title,
+        "done": done
+    }
     
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -210,21 +229,11 @@ def update_task(task_id: int, task: TaskUpdate):
 # --- STAGE 3: DELETE A TASK ---
 @app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_task(task_id: int):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
+    deleted = db.delete_task(task_id)
 
-    # 1. Check if the task exists first
-    cursor.execute("SELECT id FROM tasks WHERE id = ?", (task_id,))
-    if cursor.fetchone() is None:
-        conn.close()
+    if not deleted:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    # 2. Delete the row
-    cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
-    conn.commit()
-    conn.close()
-
-    # 3. Return 204 No Content with an empty response body
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 if __name__ == "__main__":
