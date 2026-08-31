@@ -1,89 +1,60 @@
 # FlyRank Internship — Backend Track
 
-This repository holds my assignments for the FlyRank Internship, **Backend Track**, working toward the **Backend AI Engineer** role, the on-ramp track before transitioning into Machine Learning work.
+This repository holds my assignments for the FlyRank Internship, **Backend Track**, working toward the **Backend AI Engineer** role — the on-ramp track before transitioning into Machine Learning work.
 
-Each assignment builds on the same task CRUD API, swapping out one piece of real backend infrastructure at a time:
+Each assignment builds on the same task CRUD API, swapping out one piece of real backend infrastructure at a time — same endpoints, same status codes, same JSON, only the storage underneath changes. That's what makes storage "just an implementation detail," and it's the same principle a later assignment (A15 — Layered architecture) formalizes properly.
 
-| Assignment | What it adds | Storage |
-|---|---|---|
-| A1 — First API | The API itself: routes, request/response shapes | In-memory (list) |
-| A2 — Connect to a database | Real persistence across restarts | SQLite file |
-| A3 — Containerize your stack | Docker, Postgres, Docker Compose, `.env` secrets | PostgreSQL (in Docker) |
+## Folder structure
 
-The lesson threading through all three: the API's behavior never changes — same endpoints, same status codes, same JSON — only what's running underneath it does. That's what makes storage "just an implementation detail," and it's the same principle a later assignment (A15 — Layered architecture) formalizes properly.
+Each assignment lives in its **own, self-contained, independently runnable folder** — no folder is shared or overwritten between assignments:
 
-### Where to find each assignment
+```
+FlyRank/
+├── Backend Track/
+│   ├── be-01-first-api/            BE-01 (A1) — in-memory CRUD API
+│   ├── be-02-connect-database/     BE-02 (A2) — same API, now on SQLite
+│   │   └── ai-version/             A2's AI rematch (Stage 6) — comparison only
+│   └── be-03-containerize-stack/   BE-03 (A3) — same API, now on Postgres + Docker Compose
+│       └── ai-version/             A3's AI rematch (Stage 6) — comparison only
+└── AI Fluency/                     (separate track, unrelated to Backend Track)
+```
 
-There is no separate `be-03/` folder — A3 is not a new project, it's an upgrade made *inside* `be-02-connect-database/`, continuing the same repo the assignment instructions require. Use this table, not folder names alone, to navigate:
-
-| Label | Assignment | Folder | What's there |
+| Label | Assignment | Folder | Storage |
 |---|---|---|---|
-| BE-01 | A1 — First API | `be-01-first-api/` | The original in-memory API |
-| BE-02 | A2 — Connect to a database | `be-02-connect-database/` | Same API, upgraded to SQLite (superseded — see below) |
-| **BE-03** | **A3 — Containerize your stack** | **`be-02-connect-database/`** (same folder, current state) | The **current, final version**: same API, now running on Postgres + Docker Compose |
-| — | A3 Stage 6 (AI rematch) | `ai-version/` | AI-generated Postgres+Docker stack, for comparison only — never the submission |
-| — | A2 Stage 6 (AI rematch, historical) | `be-02-connect-database/ai-version-sqlite-a2/` | An earlier, separate AI comparison exercise from back when this project still used SQLite |
+| BE-01 | A1 — First API | [`Backend Track/be-01-first-api/`](Backend%20Track/be-01-first-api/) | In-memory (list) |
+| BE-02 | A2 — Connect to a database | [`Backend Track/be-02-connect-database/`](Backend%20Track/be-02-connect-database/) | SQLite file |
+| BE-03 | A3 — Containerize your stack | [`Backend Track/be-03-containerize-stack/`](Backend%20Track/be-03-containerize-stack/) | PostgreSQL, in Docker |
 
-**In short:** `be-02-connect-database/` currently *is* the BE-03 submission — it just kept its original folder name as it evolved through A2 and A3, per the assignment's own instruction to continue in the same repo/folder rather than start a new one.
+Each folder has its own README with full setup instructions, an endpoint table, and its own "AI vs me" Stage 6 comparison — this top-level README is a map, not a duplicate of that detail.
 
----
+## Setting up each one
 
-## [BE-01] First API (`be-01-first-api/`)
+They don't share a virtual environment or dependencies — set each one up independently, from inside its own folder:
 
-A minimal backend with two JSON endpoints, built with FastAPI. It serves as the foundation for future assignments.
-
-### Running BE-01
+**BE-01 — First API**
 ```bash
-# 1. (Recommended) create and activate a virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# 2. install dependencies
+cd "Backend Track/be-01-first-api"
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-
-# 3. start the server
-cd be-01-first-api
 uvicorn main:app --reload
 ```
-The server runs at http://127.0.0.1:8000
 
----
-
-## [BE-02 & BE-03] Containerize your stack (`be-02-connect-database/`)
-
-This folder has evolved across three assignments: it started as A1's in-memory API, gained SQLite persistence in A2, and now runs the full CRUD API against a real **PostgreSQL** server — with the entire stack (API + database) started by a single command via **Docker Compose**.
-
-### Current stack
-- **FastAPI** — the API layer (unchanged in behavior since A1)
-- **PostgreSQL 18**, running in its own Docker container, not installed on the host machine
-- **psycopg** — the Python driver talking to Postgres, using parameterized queries throughout
-- **Docker Compose** — orchestrates the `api` and `db` containers together on a shared network
-- **A named Docker volume** (`taskdata`) — keeps database rows alive across container restarts and rebuilds
-
-### Running it
+**BE-02 — Connect to a database (SQLite)**
 ```bash
-cd be-02-connect-database
+cd "Backend Track/be-02-connect-database"
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+**BE-03 — Containerize your stack (Postgres + Docker)**
+```bash
+cd "Backend Track/be-03-containerize-stack"
 cp .env.example .env
 docker compose up
 ```
-The API is available at http://localhost:8000 — no manual Postgres installation or setup required.
+No local Python setup needed for BE-03 — Docker builds and runs everything, including Postgres itself.
 
-### Where the data actually lives
-Not in a file on disk anymore (that was A2's SQLite approach) — it's inside the `taskdata` Docker volume, managed by Postgres running in the `db` container. See `be-02-connect-database/README.md` for the full endpoint table, environment variables, and a screenshot of the current Postgres data.
+## A note on history
 
-**For reference — the old SQLite database (A2), before the Postgres migration:**
-![SQLite database screenshot from A2](assets/tasks_db_screenshot.png)
-
-### [A2 — Historical] Stage 6: AI vs Me (SQLite era)
-
-**This is a separate, earlier exercise from when this project still used SQLite (A2) — not the current Postgres/Docker AI rematch.** For the current A3 "AI vs me" comparison (Postgres, Docker, Docker Compose), see [`be-02-connect-database/README.md`](be-02-connect-database/README.md#stage-6-ai-vs-me-the-ai-rematch) — that's the one relevant to this assignment. This section is kept only as a historical record; the AI-generated code from this exercise lives in [`be-02-connect-database/ai-version-sqlite-a2/`](be-02-connect-database/ai-version-sqlite-a2/).
-
-**Prompt given to AI:**
-> Write a FastAPI CRUD API using sqlite3. Create table `tasks` (id integer primary key, title text, done integer) if missing. Seed 3 tasks only when empty. 5 endpoints (GET /tasks, GET /tasks/{id}, POST /tasks, PUT /tasks/{id}, DELETE /tasks/{id}) identical to in-memory, 400/404 rules, and parameterized queries.
-
-#### Differences (AI vs Me)
-
-1. **Better parameter binding**: The AI used `conn.row_factory = sqlite3.Row` which made reading from the database automatically convert to dictionaries, while my manual code used tuple unpacking to construct the dictionaries.
-2. **Missing Lifespan Manager**: The AI put the database initialization `init_db()` loosely at the module level instead of putting it safely in an `@asynccontextmanager` lifespan event like I did.
-3. **Implicit boolean casting**: My manual implementation explicitly casted `done` using `bool(done)` when sending back to the user, and converted it correctly on `PUT`. The AI simply passed the integer value `0` or `1`, which meant the response shape returned `done: 0` instead of `done: false`.
-4. **Validation differences**: The AI manually checked `c.rowcount == 0` for `PUT` and `DELETE` requests to return a `404`, whereas I ran an explicit `SELECT id FROM tasks` query to check if the task existed before running the update or delete operation. Both work, but checking `rowcount` is a clever and slightly more efficient shortcut!
+BE-02 and BE-03 both started from the same codebase (BE-03 is BE-02 upgraded to Postgres) — but they are kept as **separate, frozen folders** rather than one folder that got overwritten, specifically so each assignment stays independently checkable on its own, even after later work builds on top of it.
