@@ -1,6 +1,6 @@
 # BE-01 — My First API
 
-A minimal backend with two JSON endpoints, built with FastAPI.
+A minimal backend with two JSON endpoints, built with FastAPI. This is the starting point of the same project — its endpoints and behavior carry forward unchanged through [`../be-02-connect-database/`](../be-02-connect-database/) (SQLite) and [`../be-03-containerize-stack/`](../be-03-containerize-stack/) (Postgres + Docker); only the storage underneath changes in those later assignments.
 
 ## Run it locally
 
