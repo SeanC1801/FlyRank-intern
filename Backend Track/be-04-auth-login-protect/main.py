@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Request
 import os
 from dotenv import load_dotenv
 # pyrefly: ignore [missing-import]
@@ -19,6 +20,14 @@ app = FastAPI()
 class AuthCredentials(BaseModel):
     email: str = ""
     password: str = ""
+
+# Overriding default HTTPException handler by using a JSONHandler
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail}
+    )
 
 # When there is a missing email or password program should raise an error when SIGNING UP
 @app.post("/auth/signup", status_code=201)
