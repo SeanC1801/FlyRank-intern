@@ -67,7 +67,17 @@ def protected_info(request: Request):
         raise HTTPException(status_code=401, detail="Access token required")
 
     token = auth_header.split(" ")[1]
-    return {"message": "token received"}
+    
+    try:
+        result = supabase.auth.get_user(token)
+    except AuthApiError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    return { 
+        "id": result.user.id,
+        "email": result.user.email,
+        "created_at": result.user.created_at
+    }
 
 if __name__ == "__main__":
     import uvicorn
