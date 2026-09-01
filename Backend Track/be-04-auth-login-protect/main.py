@@ -21,7 +21,8 @@ class AuthCredentials(BaseModel):
     email: str = ""
     password: str = ""
 
-# Overriding default HTTPException handler by using a JSONHandler
+# Overriding default HTTPException handler by using a custom exception handler
+# This allows us to return a JSON response instead of an HTML response
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
@@ -54,6 +55,20 @@ def login(creds: AuthCredentials):
         "refresh_token": result.session.refresh_token
     }
 
+# Adding a public endpoint for GET /public/info
+@app.get("/public/info")
+def public_info():
+    return {"message": "Welcome stranger! This info is public."}
+
+@app.get("/protected/profile")
+def protected_info(request: Request):
+    auth_header = request.headers.get("authorization")
+    if auth_header is None or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Access token required")
+
+    token = auth_header.split(" ")[1]
+    return {"message": "token received"}
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ["PORT"])) 
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ["PORT"]))
