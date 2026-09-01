@@ -2,7 +2,9 @@
 
 This repository holds my assignments for the FlyRank Internship, **Backend Track**, working toward the **Backend AI Engineer** role — the on-ramp track before transitioning into Machine Learning work.
 
-Each assignment builds on the same task CRUD API, swapping out one piece of real backend infrastructure at a time — same endpoints, same status codes, same JSON, only the storage underneath changes. That's what makes storage "just an implementation detail," and it's the same principle a later assignment (A15 — Layered architecture) formalizes properly.
+A1 through A3 build on the same task CRUD API, swapping out one piece of real backend infrastructure at a time — same endpoints, same status codes, same JSON, only the storage underneath changes. That's what makes storage "just an implementation detail," and it's the same principle a later assignment (A15 — Layered architecture) formalizes properly.
+
+A4 is a deliberate break from that chain: a standalone authentication project (Supabase, JWTs, protected routes) that doesn't touch the tasks API at all. It builds the "who is calling" concept that a later assignment will eventually connect back to task ownership.
 
 ## Folder structure
 
@@ -14,16 +16,18 @@ FlyRank/
 │   ├── be-01-first-api/            BE-01 (A1) — in-memory CRUD API
 │   ├── be-02-connect-database/     BE-02 (A2) — same API, now on SQLite
 │   │   └── ai-version/             A2's AI rematch (Stage 6) — comparison only
-│   └── be-03-containerize-stack/   BE-03 (A3) — same API, now on Postgres + Docker Compose
-│       └── ai-version/             A3's AI rematch (Stage 6) — comparison only
+│   ├── be-03-containerize-stack/   BE-03 (A3) — same API, now on Postgres + Docker Compose
+│   │   └── ai-version/             A3's AI rematch (Stage 6) — comparison only
+│   └── be-04-auth-login-protect/   BE-04 (A4) — standalone Supabase auth API (separate project)
 └── AI Fluency/                     (separate track, unrelated to Backend Track)
 ```
 
-| Label | Assignment | Folder | Storage |
+| Label | Assignment | Folder | What it is |
 |---|---|---|---|
-| BE-01 | A1 — First API | [`Backend Track/be-01-first-api/`](Backend%20Track/be-01-first-api/) | In-memory (list) |
-| BE-02 | A2 — Connect to a database | [`Backend Track/be-02-connect-database/`](Backend%20Track/be-02-connect-database/) | SQLite file |
-| BE-03 | A3 — Containerize your stack | [`Backend Track/be-03-containerize-stack/`](Backend%20Track/be-03-containerize-stack/) | PostgreSQL, in Docker |
+| BE-01 | A1 — First API | [`Backend Track/be-01-first-api/`](Backend%20Track/be-01-first-api/) | Tasks CRUD API, in-memory storage |
+| BE-02 | A2 — Connect to a database | [`Backend Track/be-02-connect-database/`](Backend%20Track/be-02-connect-database/) | Tasks CRUD API, SQLite file |
+| BE-03 | A3 — Containerize your stack | [`Backend Track/be-03-containerize-stack/`](Backend%20Track/be-03-containerize-stack/) | Tasks CRUD API, PostgreSQL in Docker |
+| BE-04 | A4 — Auth · Login & protect | [`Backend Track/be-04-auth-login-protect/`](Backend%20Track/be-04-auth-login-protect/) | Standalone auth API — Supabase, JWTs, protected routes (not the tasks API) |
 
 Each folder has its own README with full setup instructions, an endpoint table, and its own "AI vs me" Stage 6 comparison — this top-level README is a map, not a duplicate of that detail.
 
@@ -54,6 +58,16 @@ cp .env.example .env
 docker compose up
 ```
 No local Python setup needed for BE-03 — Docker builds and runs everything, including Postgres itself.
+
+**BE-04 — Auth · Login & protect (Supabase)**
+```bash
+cd "Backend Track/be-04-auth-login-protect"
+cp .env.example .env   # then fill in your own free Supabase project's URL + anon key
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python main.py
+```
+Requires your own free [Supabase](https://supabase.com) project — see this folder's own README for the exact setup steps. Unlike BE-01–03, this one is a standalone project with no tasks involved.
 
 ## A note on history
 
