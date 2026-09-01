@@ -1,5 +1,5 @@
 from fastapi.responses import JSONResponse
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends, Response
 import os
 from dotenv import load_dotenv
 # pyrefly: ignore [missing-import]
@@ -60,8 +60,10 @@ def login(creds: AuthCredentials):
 def public_info():
     return {"message": "Welcome stranger! This info is public."}
 
-@app.get("/protected/profile")
-def protected_info(request: Request):
+# Helper function to get current user using token
+# It checks if the token is valid and returns the user
+# If the token is invalid or expired it raises an HTTPException
+def get_current_user(request: Request):
     auth_header = request.headers.get("authorization")
     if auth_header is None or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Access token required")
@@ -72,12 +74,33 @@ def protected_info(request: Request):
         result = supabase.auth.get_user(token)
     except AuthApiError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    return result.user
 
+# Adding a protected endpoint that requires authentication
+# This endpoint will return the user's profile if the token is valid
+@app.get("/protected/profile")
+def protected_info(user=Depends(get_current_user)):
     return { 
-        "id": result.user.id,
-        "email": result.user.email,
-        "created_at": result.user.created_at
+        "id": user.id,
+        "email": user.email,
+        "created_at": user.created_at
     }
+
+# A protected endpoint that will return the users information
+@app.get("/protected/dashboard")
+def protected_dashboard(user = Depends(get_current_user)):
+    return {
+        "message": f"Welcome {user.email} to your protected dashboard!"
+    }
+
+# Logging out
+@app.post("/auth/logout", status_code=204)
+def logout(user = Depends(get_current_user)):
+    supabase.auth.sign_out()
+    return Response(status_code=204)
+
+
 
 if __name__ == "__main__":
     import uvicorn
