@@ -1,5 +1,6 @@
 from fastapi.responses import JSONResponse
 from fastapi import FastAPI, HTTPException, Request, Depends, Response
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import os
 from dotenv import load_dotenv
 # pyrefly: ignore [missing-import]
@@ -16,6 +17,7 @@ SUPABASE_ANON_KEY = os.environ['SUPABASE_ANON_KEY']
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 app = FastAPI()
+security = HTTPBearer(auto_error=False)
 
 class AuthCredentials(BaseModel):
     email: str = ""
@@ -63,13 +65,12 @@ def public_info():
 # Helper function to get current user using token
 # It checks if the token is valid and returns the user
 # If the token is invalid or expired it raises an HTTPException
-def get_current_user(request: Request):
-    auth_header = request.headers.get("authorization")
-    if auth_header is None or not auth_header.startswith("Bearer "):
+# Using FastAPI
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if credentials is None:
         raise HTTPException(status_code=401, detail="Access token required")
-
-    token = auth_header.split(" ")[1]
     
+    token = credentials.credentials
     try:
         result = supabase.auth.get_user(token)
     except AuthApiError:
