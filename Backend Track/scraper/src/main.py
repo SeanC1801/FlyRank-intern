@@ -140,16 +140,20 @@ def parse_book_detail(html, product_url, source_page):
 def extract_all_books():
     books = discover_all_books()
     records = []
+    failed_pages = 0    
 
     for i, book in enumerate(books):
         cache_file = f"cache/book-{i}.html"
-        html = fetch_page(book["url"], cache_file)
-        record = parse_book_detail(html, book["url"], book["source_page"])
-        records.append(record)
+        try:
+            html = fetch_page(book["url"], cache_file)
+            record = parse_book_detail(html, book["url"], book["source_page"])
+            records.append(record)
+        except Exception as e:
+            failed_pages += 1
+            print(f"Failed to fetch or parse book {book['url']}: {e}")
 
-    print(f"detail_pages={len(records)}")
-    print(records[0])
-    return records
+    print(f"detail_pages={len(records)} failed_pages={failed_pages}")
+    return records, failed_pages
 
 def parse_price(price_text):
     return float(price_text.replace("£", "").strip())
@@ -175,9 +179,25 @@ def validate_and_store(records):
     print(f"valid_records={len(valid)} invalid_records={len(errors)}")
     return valid, errors
 
-
-
-
 if __name__ == "__main__":
-    records = extract_all_books()
-    validate_and_store(records)
+    start_time = datetime.now(timezone.utc)
+
+    records, failed_pages = extract_all_books()
+    valid, errors = validate_and_store(records)
+
+    duration = (datetime.now(timezone.utc) - start_time).total_seconds()
+
+    report = {
+        "start_time": start_time.isoformat(),
+        "duration_seconds": duration,
+        "pages_fetched": stats["pages_fetched"],
+        "cache_hits": stats["cache_hits"],
+        "valid_records": len(valid),
+        "invalid_records": len(errors),
+        "failed_pages": failed_pages,
+    }
+
+    with open("output/run-report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+    print(report)
