@@ -58,17 +58,17 @@ The data (title, price, availability, rating, description) is already present in
 
 ```json
 {
-  "start_time": "2026-09-02T19:33:16.736533+00:00",
-  "duration_seconds": 0.215767,
-  "pages_fetched": 0,
-  "cache_hits": 63,
+  "start_time": "2026-09-02T19:40:25.825501+00:00",
+  "duration_seconds": 100.83484,
+  "pages_fetched": 63,
+  "cache_hits": 0,
   "valid_records": 60,
   "invalid_records": 0,
   "failed_pages": 0
 }
 ```
 
-(`pages_fetched: 0` here because this particular run read entirely from cache — a first-ever run against a clean clone will show 63 real fetches instead.)
+This is a genuine first-time run (no `cache/` yet) — all 63 pages (3 catalogue + 60 book pages) were real fetches, taking about 100 seconds due to the 0.5s politeness delay between each. A rerun afterward reads from `cache/` instead and finishes in well under a second.
 
 ## One honest limitation
 

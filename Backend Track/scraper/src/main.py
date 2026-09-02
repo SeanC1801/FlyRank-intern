@@ -24,6 +24,7 @@ class BookRecord(BaseModel):
 
 # Fetch HTML
 def fetch_page(url, cache_file):
+    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
     if os.path.exists(cache_file):
         with open(cache_file, "r", encoding="utf-8") as f:
             html = f.read()
@@ -159,6 +160,7 @@ def parse_price(price_text):
     return float(price_text.replace("£", "").strip())
 
 def validate_and_store(records):
+    os.makedirs("output", exist_ok=True)
     valid = []
     errors = []
 
