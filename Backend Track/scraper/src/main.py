@@ -1,11 +1,25 @@
 import time
 import os
 import requests
+import json
 from datetime import datetime, timezone
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from pydantic import BaseModel
+from typing import Optional
 
 USER_AGENT = "FlyRankInternship-A9/1.0 (https://github.com/SeanC1801/FlyRank-intern)"
+
+class BookRecord(BaseModel):
+    title: str
+    product_url: str
+    price_text: str
+    price_gbp: float
+    availability_text: str
+    rating_text: str
+    description: Optional[str]
+    source_page: str
+    fetched_at: str
 
 # Fetch HTML
 def fetch_page(url, cache_file):
@@ -104,6 +118,7 @@ def parse_book_detail(html, product_url, source_page):
         "fetched_at": datetime.now(timezone.utc).isoformat(),
     }
 
+# Extract all details in a book
 def extract_all_books():
     books = discover_all_books()
     records = []
@@ -118,5 +133,31 @@ def extract_all_books():
     print(records[0])
     return records
 
+def parse_price(price_text):
+    return float(price_text.replace("£", "").strip())
+
+def validate_and_store(records):
+    valid = []
+    errors = []
+
+    for record in records:
+        try:
+            record["price_gbp"] = parse_price(record["price_text"])
+            validated = BookRecord(**record)
+            valid.append(validated.model_dump())
+        except Exception as e:
+            errors.append({"record": record, "reason": str(e)})
+
+    with open("output/books.json", "w", encoding="utf-8") as f:
+        json.dump(valid, f, indent=2, ensure_ascii=False)
+
+    with open("output/errors.json", "w", encoding="utf-8") as f:
+        json.dump(errors, f, indent=2, ensure_ascii=False)
+
+    print(f"valid_records={len(valid)} invalid_records={len(errors)}")
+    return valid, errors
+
+
 if __name__ == "__main__":
-    extract_all_books()
+    records = extract_all_books()
+    validate_and_store(records)
