@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 USER_AGENT = "FlyRankInternship-A9/1.0 (https://github.com/SeanC1801/FlyRank-intern)"
+stats = {"pages_fetched": 0, "cache_hits": 0}
 
 class BookRecord(BaseModel):
     title: str
@@ -27,20 +28,37 @@ def fetch_page(url, cache_file):
         with open(cache_file, "r", encoding="utf-8") as f:
             html = f.read()
         print(f"CACHE HIT - size: {len(html)} bytes")
+        stats["cache_hits"] += 1
         return html
-    else:
-        response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=10)
-        response.encoding = "utf-8"
-        if response.status_code != 200:
-            raise Exception(f"Fetch failed with status {response.status_code}")
+    
+    for attempt in range(2):
+        try: 
+            response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=10)
+        except requests.exceptions.Timeout:
+            if attempt == 0:
+                time.sleep(1)
+                continue
+            else:
+                raise Exception(f"Timeout on {url} after retrying")
 
-        html = response.text
-        with open(cache_file, "w", encoding="utf-8") as f:
-            f.write(html)
-        print(f"FETCH - size: {len(html)} bytes")
+        if response.status_code == 200:
+            response.encoding = "utf-8"
+            html = response.text
+            with open(cache_file, "w", encoding="utf-8") as f:
+                f.write(html)
+            print(f"FETCH - size: {len(html)} bytes")
+            time.sleep(0.5)
+            stats["pages_fetched"] += 1
+            return html
 
-        time.sleep(0.5)
-        return html
+        if response.status_code in (404, 403):
+            raise Exception(f"Fetch failed with status {response.status_code} (not retrying): {url}")
+
+        if response.status_code >= 500 and attempt == 0:
+            time.sleep(1)
+            continue
+
+        raise Exception(f"Fetch failed with status {response.status_code} (not retrying): {url}")
 
 # Parsing Page URL
 def parse_catalogue_page(html, page_url):
@@ -156,6 +174,8 @@ def validate_and_store(records):
 
     print(f"valid_records={len(valid)} invalid_records={len(errors)}")
     return valid, errors
+
+
 
 
 if __name__ == "__main__":
