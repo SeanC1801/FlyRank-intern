@@ -1,6 +1,7 @@
 import time
 import os
 import requests
+from datetime import datetime, timezone
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
@@ -15,6 +16,7 @@ def fetch_page(url, cache_file):
         return html
     else:
         response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=10)
+        response.encoding = "utf-8"
         if response.status_code != 200:
             raise Exception(f"Fetch failed with status {response.status_code}")
 
@@ -45,7 +47,7 @@ def parse_catalogue_page(html, page_url):
 
 # Discover all book urls
 def discover_all_books():
-    all_books_url = []
+    all_books = []
     catalogue_pages = 0
     current_url = "https://books.toscrape.com/catalogue/page-1.html"
     MAX_PAGES = 3
@@ -57,17 +59,64 @@ def discover_all_books():
         html = fetch_page(current_url, cache_file)
         book_urls, next_url = parse_catalogue_page(html, current_url)
         
-        all_books_url.extend(book_urls)
+        for url in book_urls:
+            all_books.append({"url": url, "source_page": current_url})
+
         catalogue_pages += 1
         current_url = next_url
 
-    unique_urls = set(all_books_url)
+    seen = {}
+    for book in all_books:
+        if book["url"] not in seen:
+            seen[book["url"]] = book["source_page"]
+    
+    unique_books = [{"url": url, "source_page": source_page} for url, source_page in seen.items()]
 
-    print(f"catalogue pages={catalogue_pages} discovered={len(all_books_url)} unique_urls={len(unique_urls)}")
-    return unique_urls
+    print(f"catalogue pages={catalogue_pages} discovered={len(all_books)} unique_urls={len(unique_books)}")
+    return unique_books
 
+# Parsing Book Details
+def parse_book_detail(html, product_url, source_page):
+    soup = BeautifulSoup(html, "html.parser")
+    product_main = soup.select_one(".product_main")
 
+    title = product_main.select_one("h1").get_text(strip=True)
+    price_text = product_main.select_one(".price_color").get_text(strip=True)
+    availability_text = product_main.select_one(".instock.availability").get_text(strip=True)
 
+    rating_tag = product_main.select_one(".star-rating")
+    rating_text = rating_tag["class"][1] # e.g. ["star-rating", "Three"]
+
+    description_heading = soup.select_one("#product_description")
+    if description_heading:
+        description = description_heading.find_next_sibling("p").get_text(strip=True)
+    else:
+        description = None
+
+    return {
+        "title": title,
+        "product_url": product_url,
+        "price_text": price_text,
+        "availability_text": availability_text,
+        "rating_text": rating_text,
+        "description": description,
+        "source_page": source_page,
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+def extract_all_books():
+    books = discover_all_books()
+    records = []
+
+    for i, book in enumerate(books):
+        cache_file = f"cache/book-{i}.html"
+        html = fetch_page(book["url"], cache_file)
+        record = parse_book_detail(html, book["url"], book["source_page"])
+        records.append(record)
+
+    print(f"detail_pages={len(records)}")
+    print(records[0])
+    return records
 
 if __name__ == "__main__":
-    discover_all_books()
+    extract_all_books()
