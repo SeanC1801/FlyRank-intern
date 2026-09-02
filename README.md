@@ -6,6 +6,8 @@ A1 through A3 build on the same task CRUD API, swapping out one piece of real ba
 
 A4 is a deliberate break from that chain: a standalone authentication project (Supabase, JWTs, protected routes) that doesn't touch the tasks API at all. It builds the "who is calling" concept that a later assignment will eventually connect back to task ownership.
 
+A9 (BE-05) is a third, unrelated standalone project: a polite web scraper against a public practice sandbox, producing clean, schema-validated JSON from raw HTML.
+
 ## Folder structure
 
 Each assignment lives in its **own, self-contained, independently runnable folder** — no folder is shared or overwritten between assignments:
@@ -18,7 +20,8 @@ FlyRank/
 │   │   └── ai-version/             A2's AI rematch (Stage 6) — comparison only
 │   ├── be-03-containerize-stack/   BE-03 (A3) — same API, now on Postgres + Docker Compose
 │   │   └── ai-version/             A3's AI rematch (Stage 6) — comparison only
-│   └── be-04-auth-login-protect/   BE-04 (A4) — standalone Supabase auth API (separate project)
+│   ├── be-04-auth-login-protect/   BE-04 (A4) — standalone Supabase auth API (separate project)
+│   └── scraper/                    BE-05 (A9) — standalone polite web scraper (separate project)
 └── AI Fluency/                     (separate track, unrelated to Backend Track)
 ```
 
@@ -28,8 +31,9 @@ FlyRank/
 | BE-02 | A2 — Connect to a database | [`Backend Track/be-02-connect-database/`](Backend%20Track/be-02-connect-database/) | Tasks CRUD API, SQLite file |
 | BE-03 | A3 — Containerize your stack | [`Backend Track/be-03-containerize-stack/`](Backend%20Track/be-03-containerize-stack/) | Tasks CRUD API, PostgreSQL in Docker |
 | BE-04 | A4 — Auth · Login & protect | [`Backend Track/be-04-auth-login-protect/`](Backend%20Track/be-04-auth-login-protect/) | Standalone auth API — Supabase, JWTs, protected routes (not the tasks API) |
+| BE-05 | A9 — The polite scraper | [`Backend Track/scraper/`](Backend%20Track/scraper/) | Standalone scraping pipeline — fetches, parses, validates, and stores book data as JSON (not the tasks API) |
 
-Each folder has its own README with full setup instructions, an endpoint table, and its own "AI vs me" Stage 6 comparison — this top-level README is a map, not a duplicate of that detail.
+Each folder has its own README with full setup instructions and details specific to that assignment (endpoint tables, schemas, politeness rules, etc.) — this top-level README is a map, not a duplicate of that detail.
 
 ## Setting up each one
 
@@ -68,6 +72,15 @@ pip install -r requirements.txt
 python main.py
 ```
 Requires your own free [Supabase](https://supabase.com) project — see this folder's own README for the exact setup steps. Unlike BE-01–03, this one is a standalone project with no tasks involved.
+
+**BE-05 — The polite scraper**
+```bash
+cd "Backend Track/scraper"
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python src/main.py
+```
+No external account or API key needed — this one only talks to a public scraping-practice sandbox. Produces `output/books.json` (60 validated records) and `output/run-report.json` (a summary of the run). Safe to re-run; it won't duplicate records, and reads previously-fetched pages from its own `cache/` folder instead of hitting the site again.
 
 ## A note on history
 
